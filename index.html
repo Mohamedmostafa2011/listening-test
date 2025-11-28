@@ -3,23 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGCSE ESL Listening Paper 2 - Full Transcript Version</title>
+    <title>IGCSE ESL Paper 2 - Exam Mode</title>
     <style>
         :root {
             --primary: #0056b3;
-            --secondary: #f0f2f5;
-            --correct: #28a745;
-            --wrong: #dc3545;
+            --selected-bg: #e7f1ff;
+            --selected-border: #0056b3;
+            --correct-bg: #d4edda;
+            --correct-border: #28a745;
+            --wrong-bg: #f8d7da;
+            --wrong-border: #dc3545;
             --text: #212529;
-            --bg: #ffffff;
+            --bg: #f4f4f9;
+            --highlight: #ffeb3b;
         }
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--secondary);
+            background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding-top: 90px;
+            padding-top: 90px; /* Space for fixed header */
+            padding-bottom: 100px; /* Space for footer button */
         }
 
         /* Sticky Header */
@@ -41,7 +46,7 @@
 
         header h1 {
             margin: 0;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 500;
         }
 
@@ -58,7 +63,7 @@
         }
 
         .exercise-section {
-            background: var(--bg);
+            background: white;
             border-radius: 12px;
             padding: 30px;
             margin-bottom: 40px;
@@ -79,16 +84,17 @@
             padding-bottom: 30px;
         }
 
-        .question-card:last-child {
-            border-bottom: none;
+        /* Transcript Styling */
+        .transcript-wrapper {
+            display: none; /* HIDDEN INITIALLY */
+            margin-bottom: 15px;
+            animation: slideDown 0.5s ease;
         }
 
-        /* Full Transcript Box Styling */
         .transcript-container {
             background-color: #f8f9fa;
             border-left: 5px solid #6c757d;
             padding: 15px 20px;
-            margin-bottom: 20px;
             border-radius: 4px;
             font-size: 0.95rem;
             line-height: 1.6;
@@ -102,12 +108,26 @@
             font-size: 0.75rem;
             color: #6c757d;
             margin-bottom: 8px;
-            letter-spacing: 1px;
         }
 
         .speaker-label {
             font-weight: bold;
             color: #000;
+        }
+
+        /* Key Evidence Highlighting */
+        .key-evidence {
+            transition: background-color 0.5s;
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+
+        /* When the 'reviewed' class is added to body, highlights appear */
+        body.reviewed .key-evidence {
+            background-color: var(--highlight);
+            font-weight: bold;
+            color: black;
+            border-bottom: 2px solid #fbc02d;
         }
 
         .question-text {
@@ -139,17 +159,23 @@
         }
 
         .option-btn:hover:not(:disabled) {
-            border-color: var(--primary);
             background-color: #f8f9fa;
+            border-color: #ccc;
         }
 
+        /* Selected State (Before Checking) */
+        .option-btn.selected {
+            background-color: var(--selected-bg);
+            border-color: var(--selected-border);
+            font-weight: 600;
+        }
+
+        /* Correct State (After Checking) */
         .option-btn.correct {
-            background-color: #d4edda;
-            border-color: var(--correct);
-            color: #155724;
-            font-weight: bold;
+            background-color: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            color: #155724 !important;
         }
-
         .option-btn.correct::after {
             content: "✓";
             position: absolute;
@@ -157,13 +183,12 @@
             font-weight: bold;
         }
 
+        /* Wrong State (After Checking) */
         .option-btn.wrong {
-            background-color: #f8d7da;
-            border-color: var(--wrong);
-            color: #721c24;
-            opacity: 0.8;
+            background-color: var(--wrong-bg) !important;
+            border-color: var(--wrong-border) !important;
+            color: #721c24 !important;
         }
-
         .option-btn.wrong::after {
             content: "✕";
             position: absolute;
@@ -171,21 +196,53 @@
             font-weight: bold;
         }
 
-        .option-btn:disabled {
-            cursor: default;
-        }
-
         /* Explanation Box */
         .explanation-box {
             margin-top: 20px;
-            padding: 20px;
+            padding: 15px;
             background-color: #e2e6ea;
             border-radius: 8px;
-            display: none; 
-            animation: fadeIn 0.4s ease;
+            display: none; /* HIDDEN INITIALLY */
         }
 
-        @keyframes fadeIn {
+        /* Floating Submit Button */
+        .submit-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .check-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .check-btn:hover {
+            background-color: #004494;
+        }
+
+        #score-display {
+            display: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        @keyframes slideDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
@@ -203,748 +260,832 @@
 
 <div class="container">
 
-    <!-- ================= EXERCISE 1 ================= -->
+    <!-- Score Section -->
+    <div id="score-display" style="text-align: center; padding: 20px;"></div>
+
+    <!-- EXERCISE 1 -->
     <section class="exercise-section">
         <h2 class="exercise-title">Exercise 1: Short Recordings</h2>
 
         <!-- Q1 -->
-        <div class="question-card" id="q1">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 2:</span> It's Mum's birthday soon. Let's get her something nice. Maybe a gardening book. She's keen on growing stuff.</p>
-                <p><span class="speaker-label">Speaker 1:</span> Mmm. That's her hobby. But her bookshelves are full and she hasn't got much space left in the garden to grow anything else. Otherwise some gardening tools would have been a good present. Anyway, there's a flower show in town soon. We could get her a ticket to go there.</p>
-                <p><span class="speaker-label">Speaker 2:</span> Sounds more exciting than my other suggestion, a big plant.</p>
-                <p><span class="speaker-label">Speaker 1:</span> She'd love that. But maybe my idea would be more special.</p>
-                <p><span class="speaker-label">Speaker 2:</span> You're right.</p>
+        <div class="question-card" id="q1" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S2:</span> Maybe a gardening book... <span class="speaker-label">S1:</span> But her bookshelves are full... Anyway, there's a flower show in town soon. <span class="key-evidence">We could get her a ticket to go there.</span> <span class="speaker-label">S2:</span> Sounds more exciting... <span class="speaker-label">S1:</span> Maybe my idea would be more special.</p>
+                </div>
             </div>
             <div class="question-text">1. What do the teenagers decide to buy for their mother?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(1, 'A', 'A', 'They reject the book, tools, and plant. They agree the ticket is more special.')">A. A ticket to a flower show</button>
-                <button class="option-btn" onclick="checkAnswer(1, 'B', 'A', 'They reject the book, tools, and plant. They agree the ticket is more special.')">B. A big plant</button>
-                <button class="option-btn" onclick="checkAnswer(1, 'C', 'A', 'They reject the book, tools, and plant. They agree the ticket is more special.')">C. Gardening tools</button>
-                <button class="option-btn" onclick="checkAnswer(1, 'D', 'A', 'They reject the book, tools, and plant. They agree the ticket is more special.')">D. A gardening book</button>
+                <button class="option-btn" onclick="selectOption(1, 'A')">A. A ticket to a flower show</button>
+                <button class="option-btn" onclick="selectOption(1, 'B')">B. A big plant</button>
+                <button class="option-btn" onclick="selectOption(1, 'C')">C. Gardening tools</button>
+                <button class="option-btn" onclick="selectOption(1, 'D')">D. A gardening book</button>
             </div>
-            <div class="explanation-box" id="expl-1"></div>
+            <div class="explanation-box">The speakers agree that the ticket is "more special" than the other options.</div>
         </div>
 
         <!-- Q2 -->
-        <div class="question-card" id="q2">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 2:</span> It's amazing how many food ads there are on TV now.</p>
-                <p><span class="speaker-label">Speaker 1:</span> Yeah, they always make me hungry. Especially those ones for pizzas. They look delicious. All that lovely cheese on top.</p>
-                <p><span class="speaker-label">Speaker 2:</span> I know.</p>
-                <p><span class="speaker-label">Speaker 1:</span> I saw an ad yesterday, though, that's never been on TV before for some ice cream that comes in loads of unusual flavours.</p>
-                <p><span class="speaker-label">Speaker 2:</span> I'd love that. It'd be great with my favourite fizzy drink.</p>
-                <p><span class="speaker-label">Speaker 1:</span> Ugh. Don't know how you can drink that stuff.</p>
-                <p><span class="speaker-label">Speaker 2:</span> Well, the advert for it is always on TV and that's why so many people drink it.</p>
+        <div class="question-card" id="q2" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S1:</span> I saw an ad yesterday... that's never been on TV before for <span class="key-evidence">some ice cream that comes in loads of unusual flavours.</span></p>
+                </div>
             </div>
             <div class="question-text">2. What is the new advert for?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(2, 'A', 'C', 'The specific new ad that has &quot;never been on TV before&quot; is for ice cream.')">A. Pizzas</button>
-                <button class="option-btn" onclick="checkAnswer(2, 'B', 'C', 'The specific new ad that has &quot;never been on TV before&quot; is for ice cream.')">B. A fizzy drink</button>
-                <button class="option-btn" onclick="checkAnswer(2, 'C', 'C', 'The specific new ad that has &quot;never been on TV before&quot; is for ice cream.')">C. Ice cream</button>
-                <button class="option-btn" onclick="checkAnswer(2, 'D', 'C', 'The specific new ad that has &quot;never been on TV before&quot; is for ice cream.')">D. Snacks</button>
+                <button class="option-btn" onclick="selectOption(2, 'A')">A. Pizzas</button>
+                <button class="option-btn" onclick="selectOption(2, 'B')">B. A fizzy drink</button>
+                <button class="option-btn" onclick="selectOption(2, 'C')">C. Ice cream</button>
+                <button class="option-btn" onclick="selectOption(2, 'D')">D. Snacks</button>
             </div>
-            <div class="explanation-box" id="expl-2"></div>
+            <div class="explanation-box">The new advert (never on TV before) is explicitly for ice cream.</div>
         </div>
 
         <!-- Q3 -->
-        <div class="question-card" id="q3">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> Have you checked the weather for tomorrow afternoon's race?</p>
-                <p><span class="speaker-label">Speaker 2:</span> Yes. I really wasn't looking forward to running under hot sun and not in a strong side wind either. That'd practically blow me over. I know I've run in those conditions before, but luckily for me it's not going to be like that. But I'm still wondering if the race will go ahead even after the early morning mist has cleared. It looks as if there'll be heavy rain at some point after lunch, which won't be great.</p>
+        <div class="question-card" id="q3" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S2:</span> It looks as if there'll be <span class="key-evidence">heavy rain at some point after lunch</span>, which won't be great.</p>
+                </div>
             </div>
             <div class="question-text">3. What will the weather be like tomorrow afternoon?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(3, 'A', 'C', 'The forecast for &quot;after lunch&quot; (afternoon) is heavy rain.')">A. Hot sun</button>
-                <button class="option-btn" onclick="checkAnswer(3, 'B', 'C', 'The forecast for &quot;after lunch&quot; (afternoon) is heavy rain.')">B. Strong wind</button>
-                <button class="option-btn" onclick="checkAnswer(3, 'C', 'C', 'The forecast for &quot;after lunch&quot; (afternoon) is heavy rain.')">C. Heavy rain</button>
-                <button class="option-btn" onclick="checkAnswer(3, 'D', 'C', 'The forecast for &quot;after lunch&quot; (afternoon) is heavy rain.')">D. Mist</button>
+                <button class="option-btn" onclick="selectOption(3, 'A')">A. Hot sun</button>
+                <button class="option-btn" onclick="selectOption(3, 'B')">B. Strong wind</button>
+                <button class="option-btn" onclick="selectOption(3, 'C')">C. Heavy rain</button>
+                <button class="option-btn" onclick="selectOption(3, 'D')">D. Mist</button>
             </div>
-            <div class="explanation-box" id="expl-3"></div>
+            <div class="explanation-box">The speaker states explicitly that there will be heavy rain after lunch.</div>
         </div>
 
         <!-- Q4 -->
-        <div class="question-card" id="q4">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> Are you going to Tom's party on Saturday?</p>
-                <p><span class="speaker-label">Speaker 2:</span> I'd already agreed to play football that evening, unfortunately, so I don't think Tom's too happy with me. I couldn't go to his picnic in the park last weekend either. The one I mentioned to you. I'd completely forgotten I had a swimming race.</p>
-                <p><span class="speaker-label">Speaker 1:</span> You're so busy.</p>
-                <p><span class="speaker-label">Speaker 2:</span> Anyway, I've got some tickets for the match I'm playing in. Do you fancy coming along?</p>
-                <p><span class="speaker-label">Speaker 1:</span> Ok. I think another friend of mine's going there too, instead of to the party, so it'll be cool.</p>
+        <div class="question-card" id="q4" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S2:</span> Anyway, I've got some tickets for the <span class="key-evidence">match I'm playing in</span>. Do you fancy coming along?</p>
+                </div>
             </div>
             <div class="question-text">4. What event is the boy inviting the girl to?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(4, 'A', 'B', 'He invites her to the match he is playing in (football).')">A. A party</button>
-                <button class="option-btn" onclick="checkAnswer(4, 'B', 'B', 'He invites her to the match he is playing in (football).')">B. A football match</button>
-                <button class="option-btn" onclick="checkAnswer(4, 'C', 'B', 'He invites her to the match he is playing in (football).')">C. A picnic</button>
-                <button class="option-btn" onclick="checkAnswer(4, 'D', 'B', 'He invites her to the match he is playing in (football).')">D. A swimming race</button>
+                <button class="option-btn" onclick="selectOption(4, 'A')">A. A party</button>
+                <button class="option-btn" onclick="selectOption(4, 'B')">B. A football match</button>
+                <button class="option-btn" onclick="selectOption(4, 'C')">C. A picnic</button>
+                <button class="option-btn" onclick="selectOption(4, 'D')">D. A swimming race</button>
             </div>
-            <div class="explanation-box" id="expl-4"></div>
+            <div class="explanation-box">The invitation is specifically for the "match I'm playing in" (football).</div>
         </div>
 
         <!-- Q5 -->
-        <div class="question-card" id="q5">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> What do you want to watch tonight? There's a good detective series on tv.</p>
-                <p><span class="speaker-label">Speaker 2:</span> I don't tend to watch those too long. There's a quiz show on. They can be quite entertaining.</p>
-                <p><span class="speaker-label">Speaker 1:</span> Oh, right. I often start off watching those and then get bored with them.</p>
-                <p><span class="speaker-label">Speaker 2:</span> Really, I'd prefer that to a music show, I think. Anyway, there's a good comedy show on too.</p>
-                <p><span class="speaker-label">Speaker 1:</span> Fine. Although I don't think I've seen any good ones on TV for a while.</p>
-                <p><span class="speaker-label">Speaker 2:</span> Well, let's give it a try and see what it's like.</p>
+        <div class="question-card" id="q5" data-correct="D">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S2:</span> Anyway, there's a good <span class="key-evidence">comedy show</span> on too... <span class="speaker-label">S1:</span> Well, let's give it a try.</p>
+                </div>
             </div>
             <div class="question-text">5. Which TV programme do the friends decide to watch?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(5, 'A', 'D', 'They discuss and reject the other options, but decide to &quot;give it a try&quot; for the comedy show.')">A. Detective series</button>
-                <button class="option-btn" onclick="checkAnswer(5, 'B', 'D', 'They discuss and reject the other options, but decide to &quot;give it a try&quot; for the comedy show.')">B. Quiz show</button>
-                <button class="option-btn" onclick="checkAnswer(5, 'C', 'D', 'They discuss and reject the other options, but decide to &quot;give it a try&quot; for the comedy show.')">C. Music show</button>
-                <button class="option-btn" onclick="checkAnswer(5, 'D', 'D', 'They discuss and reject the other options, but decide to &quot;give it a try&quot; for the comedy show.')">D. Comedy show</button>
+                <button class="option-btn" onclick="selectOption(5, 'A')">A. Detective series</button>
+                <button class="option-btn" onclick="selectOption(5, 'B')">B. Quiz show</button>
+                <button class="option-btn" onclick="selectOption(5, 'C')">C. Music show</button>
+                <button class="option-btn" onclick="selectOption(5, 'D')">D. Comedy show</button>
             </div>
-            <div class="explanation-box" id="expl-5"></div>
+            <div class="explanation-box">They reject the other options and agree to "give it a try" with the comedy show.</div>
         </div>
 
         <!-- Q6 -->
-        <div class="question-card" id="q6">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 2:</span> What's he doing?</p>
-                <p><span class="speaker-label">Speaker 1:</span> Experimenting with different ways of making a picture. I'm fed up with just getting my paints out. I wanted to try something different. I mean, I've still got that picture I made from cutting up photos and rearranging the pieces. That worked well. Anyway, I've just been out and collected all these leaves from the trees outside. I'm not sure they'll be easy to work with, though. So these shells are what I've chosen. Instead, I'll stick them on the paper to create an image.</p>
-                <p><span class="speaker-label">Speaker 2:</span> Great.</p>
+        <div class="question-card" id="q6" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S1:</span> So <span class="key-evidence">these shells are what I've chosen</span>. Instead, I'll stick them on the paper to create an image.</p>
+                </div>
             </div>
             <div class="question-text">6. What will the girl use to make her picture?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(6, 'A', 'C', 'She says: &quot;So these shells are what I\'ve chosen.&quot;')">A. Paints</button>
-                <button class="option-btn" onclick="checkAnswer(6, 'B', 'C', 'She says: &quot;So these shells are what I\'ve chosen.&quot;')">B. Leaves</button>
-                <button class="option-btn" onclick="checkAnswer(6, 'C', 'C', 'She says: &quot;So these shells are what I\'ve chosen.&quot;')">C. Shells</button>
-                <button class="option-btn" onclick="checkAnswer(6, 'D', 'C', 'She says: &quot;So these shells are what I\'ve chosen.&quot;')">D. Cut-up photos</button>
+                <button class="option-btn" onclick="selectOption(6, 'A')">A. Paints</button>
+                <button class="option-btn" onclick="selectOption(6, 'B')">B. Leaves</button>
+                <button class="option-btn" onclick="selectOption(6, 'C')">C. Shells</button>
+                <button class="option-btn" onclick="selectOption(6, 'D')">D. Cut-up photos</button>
             </div>
-            <div class="explanation-box" id="expl-6"></div>
+            <div class="explanation-box">She explicitly states "these shells are what I've chosen".</div>
         </div>
 
         <!-- Q7 -->
-        <div class="question-card" id="q7">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> Have you got a new bike?</p>
-                <p><span class="speaker-label">Speaker 2:</span> No way. Oh, you think it looks different? It certainly needed a few things doing to it. I haven't managed them all yet. My light isn't working brilliantly and needs replacing. But I've just spent my savings on some wheels. The old ones were damaged.</p>
-                <p><span class="speaker-label">Speaker 1:</span> I didn't notice. I was looking at those smart new bags.</p>
-                <p><span class="speaker-label">Speaker 2:</span> I've had those for ages. My dad got them for my books at the same time as he changed my old bike seat.</p>
-                <p><span class="speaker-label">Speaker 1:</span> Right. Maybe it's a while since I've seen your bike.</p>
+        <div class="question-card" id="q7" data-correct="D">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S2:</span> But I've just spent my savings on <span class="key-evidence">some wheels</span>. The old ones were damaged.</p>
+                </div>
             </div>
             <div class="question-text">7. What has the boy recently bought for his bicycle?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(7, 'A', 'D', 'He states: &quot;I\'ve just spent my savings on some wheels.&quot;')">A. A light</button>
-                <button class="option-btn" onclick="checkAnswer(7, 'B', 'D', 'He states: &quot;I\'ve just spent my savings on some wheels.&quot;')">B. Bags</button>
-                <button class="option-btn" onclick="checkAnswer(7, 'C', 'D', 'He states: &quot;I\'ve just spent my savings on some wheels.&quot;')">C. A seat</button>
-                <button class="option-btn" onclick="checkAnswer(7, 'D', 'D', 'He states: &quot;I\'ve just spent my savings on some wheels.&quot;')">D. Wheels</button>
+                <button class="option-btn" onclick="selectOption(7, 'A')">A. A light</button>
+                <button class="option-btn" onclick="selectOption(7, 'B')">B. Bags</button>
+                <button class="option-btn" onclick="selectOption(7, 'C')">C. A seat</button>
+                <button class="option-btn" onclick="selectOption(7, 'D')">D. Wheels</button>
             </div>
-            <div class="explanation-box" id="expl-7"></div>
+            <div class="explanation-box">He just bought wheels; the bags and seat were bought ages ago.</div>
         </div>
 
         <!-- Q8 -->
-        <div class="question-card" id="q8">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 2:</span> Was that your brother I saw earlier today at the cinema? I was just leaving when I thought I spotted him.</p>
-                <p><span class="speaker-label">Speaker 1:</span> Well, he's often there on his day off. Although in fact he's gone to the coast for the day with his friends for a change. I had breakfast with them in a cafe before they left.</p>
-                <p><span class="speaker-label">Speaker 2:</span> Well, lucky him, spending a whole day there.</p>
-                <p><span class="speaker-label">Speaker 1:</span> Yeah, although he called earlier to say the weather isn't great there, so they're already on their way back. His mate's driving them.</p>
+        <div class="question-card" id="q8" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S1:</span> ...so <span class="key-evidence">they're already on their way back</span>. His mate's driving them.</p>
+                </div>
             </div>
             <div class="question-text">8. Where is the girl's brother now?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(8, 'A', 'A', 'He is travelling in the car. &quot;They\'re already on their way back.&quot;')">A. On his way home</button>
-                <button class="option-btn" onclick="checkAnswer(8, 'B', 'A', 'He is travelling in the car. &quot;They\'re already on their way back.&quot;')">B. At the coast</button>
-                <button class="option-btn" onclick="checkAnswer(8, 'C', 'A', 'He is travelling in the car. &quot;They\'re already on their way back.&quot;')">C. At the cinema</button>
-                <button class="option-btn" onclick="checkAnswer(8, 'D', 'A', 'He is travelling in the car. &quot;They\'re already on their way back.&quot;')">D. In a cafe</button>
+                <button class="option-btn" onclick="selectOption(8, 'A')">A. On his way home</button>
+                <button class="option-btn" onclick="selectOption(8, 'B')">B. At the coast</button>
+                <button class="option-btn" onclick="selectOption(8, 'C')">C. At the cinema</button>
+                <button class="option-btn" onclick="selectOption(8, 'D')">D. In a cafe</button>
             </div>
-            <div class="explanation-box" id="expl-8"></div>
+            <div class="explanation-box">He has left the coast and is currently "on the way back" in a car.</div>
         </div>
     </section>
 
-    <!-- ================= EXERCISE 2 ================= -->
+    <!-- EXERCISE 2 -->
     <section class="exercise-section">
         <h2 class="exercise-title">Exercise 2: Five Short Recordings</h2>
 
         <!-- Q9 -->
-        <div class="question-card" id="q9">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> I've asked some friends to come for dinner tomorrow. I saw a curry recipe online, but I'd have to buy too much extra stuff like spices. So I'm making something familiar, it's safer. And I'm sure what I've decided to cook will be okay. It does take a while to make, but I know my friends will be happy to chat if it's not ready when they arrive.</p>
+        <div class="question-card" id="q9" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S1:</span> It does take a while to make, but I know my friends will be <span class="key-evidence">happy to chat if it's not ready</span> when they arrive.</p>
+                </div>
             </div>
             <div class="question-text">9. How does the woman feel about the meal she’s going to cook?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(9, 'A', 'C', 'She says friends will be happy to chat if it is not ready, so she is relaxed about the time.')">A. Excited about using different ingredients</button>
-                <button class="option-btn" onclick="checkAnswer(9, 'B', 'C', 'She says friends will be happy to chat if it is not ready, so she is relaxed about the time.')">B. Keen to try out a new dish</button>
-                <button class="option-btn" onclick="checkAnswer(9, 'C', 'C', 'She says friends will be happy to chat if it is not ready, so she is relaxed about the time.')">C. Relaxed about the time needed to prepare it</button>
+                <button class="option-btn" onclick="selectOption(9, 'A')">A. Excited about using different ingredients</button>
+                <button class="option-btn" onclick="selectOption(9, 'B')">B. Keen to try out a new dish</button>
+                <button class="option-btn" onclick="selectOption(9, 'C')">C. Relaxed about the time needed to prepare it</button>
             </div>
-            <div class="explanation-box" id="expl-9"></div>
+            <div class="explanation-box">She is not worried about the time because friends will chat if she's late.</div>
         </div>
 
         <!-- Q10 -->
-        <div class="question-card" id="q10">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 2:</span> Right, well, when I last cooked for friends, I did something I often make on the barbecue. I didn't think it was that unusual, but they absolutely loved it. Unbelievable. Maybe I did something slightly different. I can't remember what though, so I'll never be able to recreate it exactly.</p>
+        <div class="question-card" id="q10" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S2:</span> I didn't think it was that unusual, but they absolutely loved it. <span class="key-evidence">Unbelievable.</span></p>
+                </div>
             </div>
             <div class="question-text">10. What does the man say about the last meal he cooked for guests?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(10, 'A', 'B', 'He says &quot;Unbelievable&quot; about their reaction, meaning he was surprised.')">A. He wished he’d chosen a different cooking method.</button>
-                <button class="option-btn" onclick="checkAnswer(10, 'B', 'B', 'He says &quot;Unbelievable&quot; about their reaction, meaning he was surprised.')">B. His friends’ reaction was a complete surprise.</button>
-                <button class="option-btn" onclick="checkAnswer(10, 'C', 'B', 'He says &quot;Unbelievable&quot; about their reaction, meaning he was surprised.')">C. It’s become his favourite thing to make.</button>
+                <button class="option-btn" onclick="selectOption(10, 'A')">A. He wished he’d chosen a different cooking method.</button>
+                <button class="option-btn" onclick="selectOption(10, 'B')">B. His friends’ reaction was a complete surprise.</button>
+                <button class="option-btn" onclick="selectOption(10, 'C')">C. It’s become his favourite thing to make.</button>
             </div>
-            <div class="explanation-box" id="expl-10"></div>
+            <div class="explanation-box">He describes their positive reaction as "Unbelievable," implying surprise.</div>
         </div>
 
         <!-- Q11 -->
-        <div class="question-card" id="q11">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 2:</span> I had an interesting trip home from my vacation. I traveled back by train. Three trains actually, so I was worried one would be late and I'd miss the others, but I managed to avoid that. The thing was, I hadn't realized two were commuter trains. They were packed. On the second one I stood up for an hour. Not great as I was really tired. Knowing me, though, I'd probably make the same mistake again.</p>
+        <div class="question-card" id="q11" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S2:</span> On the second one I stood up for an hour. <span class="key-evidence">Not great as I was really tired.</span></p>
+                </div>
             </div>
             <div class="question-text">11. What does the man say about the journey home from his holiday?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(11, 'A', 'B', 'He stood for an hour while tired, describing it as &quot;not great&quot;, meaning uncomfortable.')">A. It taught him a number of things.</button>
-                <button class="option-btn" onclick="checkAnswer(11, 'B', 'B', 'He stood for an hour while tired, describing it as &quot;not great&quot;, meaning uncomfortable.')">B. It was very uncomfortable.</button>
-                <button class="option-btn" onclick="checkAnswer(11, 'C', 'B', 'He stood for an hour while tired, describing it as &quot;not great&quot;, meaning uncomfortable.')">C. It was full of delays.</button>
+                <button class="option-btn" onclick="selectOption(11, 'A')">A. It taught him a number of things.</button>
+                <button class="option-btn" onclick="selectOption(11, 'B')">B. It was very uncomfortable.</button>
+                <button class="option-btn" onclick="selectOption(11, 'C')">C. It was full of delays.</button>
             </div>
-            <div class="explanation-box" id="expl-11"></div>
+            <div class="explanation-box">Standing for an hour while tired is described as "not great" (uncomfortable).</div>
         </div>
 
         <!-- Q12 -->
-        <div class="question-card" id="q12">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 2:</span> Anyway, I've got another trip coming up next month and I'm wondering about it now. I'll probably still go, but I might think again before booking such a complicated route. I may even fly, who knows.</p>
+        <div class="question-card" id="q12" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S2:</span> I'll probably still go, but <span class="key-evidence">I might think again before booking such a complicated route.</span></p>
+                </div>
             </div>
             <div class="question-text">12. How does the man feel about his next trip?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(12, 'A', 'C', 'He will still go but &quot;might think again&quot; about the route, showing caution.')">A. He’s been completely discouraged from going.</button>
-                <button class="option-btn" onclick="checkAnswer(12, 'B', 'C', 'He will still go but &quot;might think again&quot; about the route, showing caution.')">B. He’s determined it will be better than his last one.</button>
-                <button class="option-btn" onclick="checkAnswer(12, 'C', 'C', 'He will still go but &quot;might think again&quot; about the route, showing caution.')">C. He’s more cautious about one aspect of it.</button>
+                <button class="option-btn" onclick="selectOption(12, 'A')">A. He’s been completely discouraged from going.</button>
+                <button class="option-btn" onclick="selectOption(12, 'B')">B. He’s determined it will be better than his last one.</button>
+                <button class="option-btn" onclick="selectOption(12, 'C')">C. He’s more cautious about one aspect of it.</button>
             </div>
-            <div class="explanation-box" id="expl-12"></div>
+            <div class="explanation-box">He is cautious about the specific aspect of the route/booking method.</div>
         </div>
 
         <!-- Q13 -->
-        <div class="question-card" id="q13">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 2:</span> I went to that clothes shop in town yesterday. I was beginning to feel like the only person who hadn't been. They have nice stuff, so maybe you should have a look. You can come with me. Or maybe it'd better if you went on your own so you have more time to look around. I might get some new clothes there myself next week.</p>
+        <div class="question-card" id="q13" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S2:</span> They have nice stuff, so <span class="key-evidence">maybe you should have a look.</span></p>
+                </div>
             </div>
             <div class="question-text">13. Why is the man telling his friend about a clothes shop he’s been to?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(13, 'A', 'A', 'He says &quot;maybe you should have a look&quot;, trying to persuade her to go.')">A. to persuade her to see the shop for herself</button>
-                <button class="option-btn" onclick="checkAnswer(13, 'B', 'A', 'He says &quot;maybe you should have a look&quot;, trying to persuade her to go.')">B. to advise her about when it is best to go</button>
-                <button class="option-btn" onclick="checkAnswer(13, 'C', 'A', 'He says &quot;maybe you should have a look&quot;, trying to persuade her to go.')">C. to change her opinion about it</button>
+                <button class="option-btn" onclick="selectOption(13, 'A')">A. to persuade her to see the shop for herself</button>
+                <button class="option-btn" onclick="selectOption(13, 'B')">B. to advise her about when it is best to go</button>
+                <button class="option-btn" onclick="selectOption(13, 'C')">C. to change her opinion about it</button>
             </div>
-            <div class="explanation-box" id="expl-13"></div>
+            <div class="explanation-box">He is encouraging (persuading) her to go check it out.</div>
         </div>
 
         <!-- Q14 -->
-        <div class="question-card" id="q14">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> Well, could do, but I'm not so keen on clothes shopping these days. I've made so many expensive mistakes. I spend ages trying things on and then make the wrong decision. So I rarely go unless I have to. Although I know that other people enjoy it.</p>
+        <div class="question-card" id="q14" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S1:</span> So <span class="key-evidence">I rarely go unless I have to.</span></p>
+                </div>
             </div>
             <div class="question-text">14. What does the woman say about clothes shopping?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(14, 'A', 'A', 'She says &quot;I rarely go unless I have to,&quot; meaning she avoids it.')">A. She tries to avoid it whenever possible.</button>
-                <button class="option-btn" onclick="checkAnswer(14, 'B', 'A', 'She says &quot;I rarely go unless I have to,&quot; meaning she avoids it.')">B. She usually buys the first thing she sees.</button>
-                <button class="option-btn" onclick="checkAnswer(14, 'C', 'A', 'She says &quot;I rarely go unless I have to,&quot; meaning she avoids it.')">C. She doesn’t understand why people like it.</button>
+                <button class="option-btn" onclick="selectOption(14, 'A')">A. She tries to avoid it whenever possible.</button>
+                <button class="option-btn" onclick="selectOption(14, 'B')">B. She usually buys the first thing she sees.</button>
+                <button class="option-btn" onclick="selectOption(14, 'C')">C. She doesn’t understand why people like it.</button>
             </div>
-            <div class="explanation-box" id="expl-14"></div>
+            <div class="explanation-box">"Rarely go unless I have to" means avoiding it whenever possible.</div>
         </div>
 
         <!-- Q15 -->
-        <div class="question-card" id="q15">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> I went to an exhibition of old photographs yesterday, all taken around the area where I grew up. I was expecting to be fascinated by it. I thought it'd bring back memories. And in fact there were more pictures of people than places. With not many photos that captured the mood of the time. However, at least it was quiet the day I went.</p>
+        <div class="question-card" id="q15" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S1:</span> I was expecting to be fascinated... <span class="key-evidence">With not many photos that captured the mood of the time.</span></p>
+                </div>
             </div>
             <div class="question-text">15. What did the woman think of the exhibition?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(15, 'A', 'C', 'She expected to be fascinated but found &quot;not many photos captured the mood&quot;, implying disappointment.')">A. It attracted more people than she’d expected.</button>
-                <button class="option-btn" onclick="checkAnswer(15, 'B', 'C', 'She expected to be fascinated but found &quot;not many photos captured the mood&quot;, implying disappointment.')">B. It reminded her of her childhood.</button>
-                <button class="option-btn" onclick="checkAnswer(15, 'C', 'C', 'She expected to be fascinated but found &quot;not many photos captured the mood&quot;, implying disappointment.')">C. It was a bit of a disappointment.</button>
+                <button class="option-btn" onclick="selectOption(15, 'A')">A. It attracted more people than she’d expected.</button>
+                <button class="option-btn" onclick="selectOption(15, 'B')">B. It reminded her of her childhood.</button>
+                <button class="option-btn" onclick="selectOption(15, 'C')">C. It was a bit of a disappointment.</button>
             </div>
-            <div class="explanation-box" id="expl-15"></div>
+            <div class="explanation-box">Her expectations were not met ("expecting to be fascinated"), implying disappointment.</div>
         </div>
 
         <!-- Q16 -->
-        <div class="question-card" id="q16">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> Anyway, there were copies of the original photos to buy in the gift shop. Quite a few, really. For such a small exhibition, I quickly found one I liked. I noticed it as soon as I'd arrived. The place in it was unfamiliar though. So I'll look into the location and go on a visit.</p>
+        <div class="question-card" id="q16" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S1:</span> <span class="key-evidence">The place in it was unfamiliar though.</span> So I'll look into the location and go on a visit.</p>
+                </div>
             </div>
             <div class="question-text">16. The woman says that the photo she bought as a souvenir...</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(16, 'A', 'B', 'She says &quot;The place in it was unfamiliar though,&quot; meaning she hadn\'t been there.')">A. was the best out of a limited choice.</button>
-                <button class="option-btn" onclick="checkAnswer(16, 'B', 'B', 'She says &quot;The place in it was unfamiliar though,&quot; meaning she hadn\'t been there.')">B. was of somewhere she’d never been to.</button>
-                <button class="option-btn" onclick="checkAnswer(16, 'C', 'B', 'She says &quot;The place in it was unfamiliar though,&quot; meaning she hadn\'t been there.')">C. was one that she’d wanted for a long time.</button>
+                <button class="option-btn" onclick="selectOption(16, 'A')">A. was the best out of a limited choice.</button>
+                <button class="option-btn" onclick="selectOption(16, 'B')">B. was of somewhere she’d never been to.</button>
+                <button class="option-btn" onclick="selectOption(16, 'C')">C. was one that she’d wanted for a long time.</button>
             </div>
-            <div class="explanation-box" id="expl-16"></div>
+            <div class="explanation-box">It was "unfamiliar" and she wants to go visit, meaning she has never been there.</div>
         </div>
 
         <!-- Q17 -->
-        <div class="question-card" id="q17">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> Josh, it's Sally. I'm sorry to do this again, but I can't make it to the cinema tomorrow after all. I put the date in my diary, but I hadn't put in something else happening on the same day. My friend's graduation. I can't believe I overlooked that. So silly of me.</p>
+        <div class="question-card" id="q17" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S1:</span> I can't believe I overlooked that. <span class="key-evidence">So silly of me.</span></p>
+                </div>
             </div>
             <div class="question-text">17. How does the woman feel about having to change the arrangements?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(17, 'A', 'A', 'She calls herself &quot;silly&quot; and says she &quot;can\'t believe&quot; she overlooked it, showing embarrassment.')">A. embarrassed about her reason for doing it</button>
-                <button class="option-btn" onclick="checkAnswer(17, 'B', 'A', 'She calls herself &quot;silly&quot; and says she &quot;can\'t believe&quot; she overlooked it, showing embarrassment.')">B. sure that Josh will understand</button>
-                <button class="option-btn" onclick="checkAnswer(17, 'C', 'A', 'She calls herself &quot;silly&quot; and says she &quot;can\'t believe&quot; she overlooked it, showing embarrassment.')">C. regretful about having to miss the film</button>
+                <button class="option-btn" onclick="selectOption(17, 'A')">A. embarrassed about her reason for doing it</button>
+                <button class="option-btn" onclick="selectOption(17, 'B')">B. sure that Josh will understand</button>
+                <button class="option-btn" onclick="selectOption(17, 'C')">C. regretful about having to miss the film</button>
             </div>
-            <div class="explanation-box" id="expl-17"></div>
+            <div class="explanation-box">Calling herself "silly" and "can't believe I overlooked that" indicates embarrassment.</div>
         </div>
 
         <!-- Q18 -->
-        <div class="question-card" id="q18">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> Anyhow, the film we wanted to see is on all week, so let's just reschedule. And when we do see the film, let me take you to a new restaurant afterwards where I had a lovely meal with my family. I'll book a table outside in the beautiful garden, which I know you'll like, and I'll get the bill. Speak soon.</p>
+        <div class="question-card" id="q18" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p><span class="speaker-label">S1:</span> I'll book a table outside in the <span class="key-evidence">beautiful garden</span>, which I know you'll like...</p>
+                </div>
             </div>
             <div class="question-text">18. The woman is offering to take Josh to a restaurant that...</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(18, 'A', 'B', 'She mentions the &quot;beautiful garden&quot;, which is an attractive seating area.')">A. she knows is his favourite.</button>
-                <button class="option-btn" onclick="checkAnswer(18, 'B', 'B', 'She mentions the &quot;beautiful garden&quot;, which is an attractive seating area.')">B. has an attractive seating area.</button>
-                <button class="option-btn" onclick="checkAnswer(18, 'C', 'B', 'She mentions the &quot;beautiful garden&quot;, which is an attractive seating area.')">C. was recommended by relatives.</button>
+                <button class="option-btn" onclick="selectOption(18, 'A')">A. she knows is his favourite.</button>
+                <button class="option-btn" onclick="selectOption(18, 'B')">B. has an attractive seating area.</button>
+                <button class="option-btn" onclick="selectOption(18, 'C')">C. was recommended by relatives.</button>
             </div>
-            <div class="explanation-box" id="expl-18"></div>
+            <div class="explanation-box">A "beautiful garden" is an attractive seating area.</div>
         </div>
     </section>
 
-    <!-- ================= EXERCISE 3 ================= -->
+    <!-- EXERCISE 3 -->
     <section class="exercise-section">
         <h2 class="exercise-title">Exercise 3: Talk about Cuckoo Park</h2>
-
+        
         <!-- Q19 -->
-        <div class="question-card" id="q19">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> I'm Sylvia Trent, here to talk about improving a park in my city called Cuckoo Park. My interest in the park was inspired by my childhood hobbies. I used to collect wildflowers, then find poems about them. And my books were mostly about science rather than fiction. I like guides to plants, so I've returned to all that again.</p>
+        <div class="question-card" id="q19" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>And my books were mostly about <span class="key-evidence">science</span> rather than fiction.</p>
+                </div>
             </div>
             <div class="question-text">19. Sylvia says she was interested in ... as a child.</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(19, 'A', 'C', 'She states &quot;my books were mostly about science&quot;.')">A. writing poems</button>
-                <button class="option-btn" onclick="checkAnswer(19, 'B', 'C', 'She states &quot;my books were mostly about science&quot;.')">B. drawing wild flowers</button>
-                <button class="option-btn" onclick="checkAnswer(19, 'C', 'C', 'She states &quot;my books were mostly about science&quot;.')">C. reading about science</button>
+                <button class="option-btn" onclick="selectOption(19, 'A')">A. writing poems</button>
+                <button class="option-btn" onclick="selectOption(19, 'B')">B. drawing wild flowers</button>
+                <button class="option-btn" onclick="selectOption(19, 'C')">C. reading about science</button>
             </div>
-            <div class="explanation-box" id="expl-19"></div>
+            <div class="explanation-box">She explicitly mentions reading books about science.</div>
         </div>
 
         <!-- Q20 -->
-        <div class="question-card" id="q20">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> I remember Cuckoo park from when I was younger. In those days, there were two lakes there and a few trees, but that was all. I'd often walked there with friends. We were keen on ball games, but the park wasn't looked after, so it wasn't somewhere you'd go if you had other options. But at the time, we didn't.</p>
+        <div class="question-card" id="q20" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>it wasn't somewhere you'd go if you had other options. <span class="key-evidence">But at the time, we didn't.</span></p>
+                </div>
             </div>
             <div class="question-text">20. When Sylvia was younger, Cuckoo Park ...</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(20, 'A', 'A', 'She says &quot;if you had other options. But at the time, we didn\'t.&quot; meaning it was the only place.')">A. was the only place to go and play.</button>
-                <button class="option-btn" onclick="checkAnswer(20, 'B', 'A', 'She says &quot;if you had other options. But at the time, we didn\'t.&quot; meaning it was the only place.')">B. was far from where she lived.</button>
-                <button class="option-btn" onclick="checkAnswer(20, 'C', 'A', 'She says &quot;if you had other options. But at the time, we didn\'t.&quot; meaning it was the only place.')">C. was full of natural features.</button>
+                <button class="option-btn" onclick="selectOption(20, 'A')">A. was the only place to go and play.</button>
+                <button class="option-btn" onclick="selectOption(20, 'B')">B. was far from where she lived.</button>
+                <button class="option-btn" onclick="selectOption(20, 'C')">C. was full of natural features.</button>
             </div>
-            <div class="explanation-box" id="expl-20"></div>
+            <div class="explanation-box">They had no other options, making it the only place to go.</div>
         </div>
 
         <!-- Q21 -->
-        <div class="question-card" id="q21">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> Two years ago, I went back to the park again for a walk and was delighted to see how rich it was in wildlife. There was lots of plastic waste and stuff lying around, as I had expected. But I knew once that had been cleared, it had great potential.</p>
+        <div class="question-card" id="q21" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>was delighted to see <span class="key-evidence">how rich it was in wildlife</span>.</p>
+                </div>
             </div>
             <div class="question-text">21. When Sylvia revisited Cuckoo Park two years ago, she felt ...</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(21, 'A', 'B', 'She was &quot;delighted to see how rich it was in wildlife.&quot;')">A. shocked at the amount of rubbish there.</button>
-                <button class="option-btn" onclick="checkAnswer(21, 'B', 'B', 'She was &quot;delighted to see how rich it was in wildlife.&quot;')">B. excited by the number of creatures living there.</button>
-                <button class="option-btn" onclick="checkAnswer(21, 'C', 'B', 'She was &quot;delighted to see how rich it was in wildlife.&quot;')">C. attracted to it as a quiet place to go.</button>
+                <button class="option-btn" onclick="selectOption(21, 'A')">A. shocked at the amount of rubbish there.</button>
+                <button class="option-btn" onclick="selectOption(21, 'B')">B. excited by the number of creatures living there.</button>
+                <button class="option-btn" onclick="selectOption(21, 'C')">C. attracted to it as a quiet place to go.</button>
             </div>
-            <div class="explanation-box" id="expl-21"></div>
+            <div class="explanation-box">She was "delighted" (excited) by the "rich wildlife" (creatures).</div>
         </div>
 
         <!-- Q22 -->
-        <div class="question-card" id="q22">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> So I started making plans and asked for volunteers to help tidy the park, which they did. Since then, the park's become popular with local people. They can go Running or walk around and chat to neighbors. And there are regular guided walks with conservationists who tell people about the birds and trees there. So there are things happening.</p>
+        <div class="question-card" id="q22" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>And there are regular guided walks with conservationists who <span class="key-evidence">tell people about the birds and trees there</span>.</p>
+                </div>
             </div>
             <div class="question-text">22. Sylvia says there are now ... organised for local people in Cuckoo Park.</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(22, 'A', 'A', 'Guided walks to learn about birds/trees are educational events.')">A. educational events</button>
-                <button class="option-btn" onclick="checkAnswer(22, 'B', 'A', 'Guided walks to learn about birds/trees are educational events.')">B. social events</button>
-                <button class="option-btn" onclick="checkAnswer(22, 'C', 'A', 'Guided walks to learn about birds/trees are educational events.')">C. sports events</button>
+                <button class="option-btn" onclick="selectOption(22, 'A')">A. educational events</button>
+                <button class="option-btn" onclick="selectOption(22, 'B')">B. social events</button>
+                <button class="option-btn" onclick="selectOption(22, 'C')">C. sports events</button>
             </div>
-            <div class="explanation-box" id="expl-22"></div>
+            <div class="explanation-box">Events where experts "tell people about" nature are educational.</div>
         </div>
 
         <!-- Q23 -->
-        <div class="question-card" id="q23">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> I'm currently focusing on specific environmental aspects of Cuckoo Park. For example, the lakes there attract birds, but these places need looking after as the water can dry up during hot summers. So I work with the local environmental agency to prevent that. Bird populations everywhere need our help, partly because of pollution, so volunteers do things like building shelters for them in our park.</p>
+        <div class="question-card" id="q23" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>the water can dry up during hot summers. <span class="key-evidence">So I work... to prevent that.</span></p>
+                </div>
             </div>
             <div class="question-text">23. Sylvia is currently working on ... at Cuckoo Park.</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(23, 'A', 'C', 'She works to prevent water drying up, which is maintaining areas of water.')">A. monitoring bird populations</button>
-                <button class="option-btn" onclick="checkAnswer(23, 'B', 'C', 'She works to prevent water drying up, which is maintaining areas of water.')">B. reducing pollution</button>
-                <button class="option-btn" onclick="checkAnswer(23, 'C', 'C', 'She works to prevent water drying up, which is maintaining areas of water.')">C. maintaining areas of water</button>
+                <button class="option-btn" onclick="selectOption(23, 'A')">A. monitoring bird populations</button>
+                <button class="option-btn" onclick="selectOption(23, 'B')">B. reducing pollution</button>
+                <button class="option-btn" onclick="selectOption(23, 'C')">C. maintaining areas of water</button>
             </div>
-            <div class="explanation-box" id="expl-23"></div>
+            <div class="explanation-box">She is working to prevent the water drying up.</div>
         </div>
 
         <!-- Q24 -->
-        <div class="question-card" id="q24">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> When I found out about a plan for more parking spaces, I knew I had to do something to stop it, as it meant losing part of Cuckoo Park. Given how easy it is to reach the park on public transport or by bike, I felt it wasn't really required, even though it wasn't going to be expensive. At least they planned to build them behind some trees, so the park would have been almost as quiet as it is now.</p>
+        <div class="question-card" id="q24" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>Given how easy it is to reach the park on public transport... I felt it <span class="key-evidence">wasn't really required</span></p>
+                </div>
             </div>
             <div class="question-text">24. Sylvia opposed a plan for more parking spaces because it would ...</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(24, 'A', 'B', 'She felt it &quot;wasn\'t really required&quot;, meaning unnecessary.')">A. increase noise levels.</button>
-                <button class="option-btn" onclick="checkAnswer(24, 'B', 'B', 'She felt it &quot;wasn\'t really required&quot;, meaning unnecessary.')">B. be unnecessary.</button>
-                <button class="option-btn" onclick="checkAnswer(24, 'C', 'B', 'She felt it &quot;wasn\'t really required&quot;, meaning unnecessary.')">C. cost too much.</button>
+                <button class="option-btn" onclick="selectOption(24, 'A')">A. increase noise levels.</button>
+                <button class="option-btn" onclick="selectOption(24, 'B')">B. be unnecessary.</button>
+                <button class="option-btn" onclick="selectOption(24, 'C')">C. cost too much.</button>
             </div>
-            <div class="explanation-box" id="expl-24"></div>
+            <div class="explanation-box">"Wasn't really required" is a synonym for unnecessary.</div>
         </div>
 
         <!-- Q25 -->
-        <div class="question-card" id="q25">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> Fortunately, though, the plan was rejected, I'm also pleased with recent progress in Cuckoo Park. Far more people are going there, as we'd hoped, and one group's growing fruit and vegetables and selling them. That's popular for me, though the most impressive are the painting and photography groups based in the park. Great.</p>
+        <div class="question-card" id="q25" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>though <span class="key-evidence">the most impressive are the painting and photography groups</span> based in the park.</p>
+                </div>
             </div>
             <div class="question-text">25. Sylvia is now especially pleased about the increase in ... at Cuckoo Park.</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(25, 'A', 'A', 'She calls the painting and photography groups &quot;most impressive&quot;. These are art activities.')">A. art activities</button>
-                <button class="option-btn" onclick="checkAnswer(25, 'B', 'A', 'She calls the painting and photography groups &quot;most impressive&quot;. These are art activities.')">B. visitor numbers</button>
-                <button class="option-btn" onclick="checkAnswer(25, 'C', 'A', 'She calls the painting and photography groups &quot;most impressive&quot;. These are art activities.')">C. fresh food production</button>
+                <button class="option-btn" onclick="selectOption(25, 'A')">A. art activities</button>
+                <button class="option-btn" onclick="selectOption(25, 'B')">B. visitor numbers</button>
+                <button class="option-btn" onclick="selectOption(25, 'C')">C. fresh food production</button>
             </div>
-            <div class="explanation-box" id="expl-25"></div>
+            <div class="explanation-box">Painting and photography are art activities.</div>
         </div>
 
         <!-- Q26 -->
-        <div class="question-card" id="q26">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> I must admit, though, my Cuckoo park projects fill my life. I have a full time job and I'm also studying for another degree, so it's hard to fit in things like seeing people I know. I feel I'm ignoring them, but they understand I need to do whatever I can to keep the park functioning.</p>
+        <div class="question-card" id="q26" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>so it's hard to fit in things like <span class="key-evidence">seeing people I know</span>. I feel I'm ignoring them</p>
+                </div>
             </div>
             <div class="question-text">26. Sylvia admits she hasn’t paid proper attention to her ... because of her projects.</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(26, 'A', 'C', '&quot;Seeing people I know&quot; refers to her friends.')">A. work</button>
-                <button class="option-btn" onclick="checkAnswer(26, 'B', 'C', '&quot;Seeing people I know&quot; refers to her friends.')">B. studies</button>
-                <button class="option-btn" onclick="checkAnswer(26, 'C', 'C', '&quot;Seeing people I know&quot; refers to her friends.')">C. friends</button>
+                <button class="option-btn" onclick="selectOption(26, 'A')">A. work</button>
+                <button class="option-btn" onclick="selectOption(26, 'B')">B. studies</button>
+                <button class="option-btn" onclick="selectOption(26, 'C')">C. friends</button>
             </div>
-            <div class="explanation-box" id="expl-26"></div>
+            <div class="explanation-box">"People I know" refers to her friends.</div>
         </div>
     </section>
 
-    <!-- ================= EXERCISE 4 ================= -->
+    <!-- EXERCISE 4 -->
     <section class="exercise-section">
         <h2 class="exercise-title">Exercise 4: Matching Speakers</h2>
 
         <!-- Q27 -->
-        <div class="question-card" id="q27">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript (Speaker 1)</span>
-                <p>For my birthday, my friend took me to my first classical concert. To be honest, I didn't look at the evening's program in advance, so I didn't realize that what the orchestra was going to play would be totally unfamiliar to me. Anyway, it didn't matter. It was beautiful and our seats couldn't have been any nearer to the stage. But the pianist, a big name in the music world, didn't look quite as impressive as I'd Expected, somehow.</p>
+        <div class="question-card" id="q27" data-correct="G">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript (Speaker 1)</span>
+                    <p>what the orchestra was going to play would be <span class="key-evidence">totally unfamiliar to me</span>.</p>
+                </div>
             </div>
             <div class="question-text">27. Speaker 1</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(27, 'A', 'G', 'Speaker 1 says the music was &quot;totally unfamiliar&quot;.')">A. I wasn’t sure how to behave while the orchestra was playing.</button>
-                <button class="option-btn" onclick="checkAnswer(27, 'B', 'G', 'Speaker 1 says the music was &quot;totally unfamiliar&quot;.')">B. I was shocked by the audience’s reaction at the end.</button>
-                <button class="option-btn" onclick="checkAnswer(27, 'C', 'G', 'Speaker 1 says the music was &quot;totally unfamiliar&quot;.')">C. I was disappointed with the seats we got.</button>
-                <button class="option-btn" onclick="checkAnswer(27, 'D', 'G', 'Speaker 1 says the music was &quot;totally unfamiliar&quot;.')">D. I was thrilled to be close to a famous musician.</button>
-                <button class="option-btn" onclick="checkAnswer(27, 'E', 'G', 'Speaker 1 says the music was &quot;totally unfamiliar&quot;.')">E. I chose the wrong thing to wear.</button>
-                <button class="option-btn" onclick="checkAnswer(27, 'F', 'G', 'Speaker 1 says the music was &quot;totally unfamiliar&quot;.')">F. I was fascinated by certain members of the audience.</button>
-                <button class="option-btn" onclick="checkAnswer(27, 'G', 'G', 'Speaker 1 says the music was &quot;totally unfamiliar&quot;.')">G. I didn’t recognise any of the music.</button>
-                <button class="option-btn" onclick="checkAnswer(27, 'H', 'G', 'Speaker 1 says the music was &quot;totally unfamiliar&quot;.')">H. I became very keen to attend another concert.</button>
+                <button class="option-btn" onclick="selectOption(27, 'A')">A. I wasn’t sure how to behave...</button>
+                <button class="option-btn" onclick="selectOption(27, 'B')">B. I was shocked by the audience’s reaction...</button>
+                <button class="option-btn" onclick="selectOption(27, 'C')">C. I was disappointed with the seats...</button>
+                <button class="option-btn" onclick="selectOption(27, 'D')">D. I was thrilled to be close to a famous musician.</button>
+                <button class="option-btn" onclick="selectOption(27, 'E')">E. I chose the wrong thing to wear.</button>
+                <button class="option-btn" onclick="selectOption(27, 'F')">F. I was fascinated by certain members of the audience.</button>
+                <button class="option-btn" onclick="selectOption(27, 'G')">G. I didn’t recognise any of the music.</button>
+                <button class="option-btn" onclick="selectOption(27, 'H')">H. I became very keen to attend another concert.</button>
             </div>
-            <div class="explanation-box" id="expl-27"></div>
         </div>
 
         <!-- Q28 -->
-        <div class="question-card" id="q28">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript (Speaker 2)</span>
-                <p>Being at a classical music concert was a great experience, but a strange one too. For example, I realised it's forbidden to clap after a really good bit. You're supposed to wait until right at the end, even if the musicians have played one part brilliantly. A little confusing, really. Anyway, I put on my best silk suit, as I'd been advised to, luckily. And there are tickets available for another performance next month, so we may go again.</p>
+        <div class="question-card" id="q28" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript (Speaker 2)</span>
+                    <p>forbidden to clap after a really good bit... <span class="key-evidence">A little confusing, really.</span></p>
+                </div>
             </div>
             <div class="question-text">28. Speaker 2</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(28, 'A', 'A', 'Speaker 2 was confused about when to clap (how to behave).')">A. I wasn’t sure how to behave while the orchestra was playing.</button>
-                <button class="option-btn" onclick="checkAnswer(28, 'B', 'A', 'Speaker 2 was confused about when to clap (how to behave).')">B. I was shocked by the audience’s reaction at the end.</button>
-                <button class="option-btn" onclick="checkAnswer(28, 'C', 'A', 'Speaker 2 was confused about when to clap (how to behave).')">C. I was disappointed with the seats we got.</button>
-                <button class="option-btn" onclick="checkAnswer(28, 'D', 'A', 'Speaker 2 was confused about when to clap (how to behave).')">D. I was thrilled to be close to a famous musician.</button>
-                <button class="option-btn" onclick="checkAnswer(28, 'E', 'A', 'Speaker 2 was confused about when to clap (how to behave).')">E. I chose the wrong thing to wear.</button>
-                <button class="option-btn" onclick="checkAnswer(28, 'F', 'A', 'Speaker 2 was confused about when to clap (how to behave).')">F. I was fascinated by certain members of the audience.</button>
-                <button class="option-btn" onclick="checkAnswer(28, 'G', 'A', 'Speaker 2 was confused about when to clap (how to behave).')">G. I didn’t recognise any of the music.</button>
-                <button class="option-btn" onclick="checkAnswer(28, 'H', 'A', 'Speaker 2 was confused about when to clap (how to behave).')">H. I became very keen to attend another concert.</button>
+                <button class="option-btn" onclick="selectOption(28, 'A')">A. I wasn’t sure how to behave...</button>
+                <button class="option-btn" onclick="selectOption(28, 'B')">B. I was shocked by the audience’s reaction...</button>
+                <button class="option-btn" onclick="selectOption(28, 'C')">C. I was disappointed with the seats...</button>
+                <button class="option-btn" onclick="selectOption(28, 'D')">D. I was thrilled to be close to a famous musician.</button>
+                <button class="option-btn" onclick="selectOption(28, 'E')">E. I chose the wrong thing to wear.</button>
+                <button class="option-btn" onclick="selectOption(28, 'F')">F. I was fascinated by certain members of the audience.</button>
+                <button class="option-btn" onclick="selectOption(28, 'G')">G. I didn’t recognise any of the music.</button>
+                <button class="option-btn" onclick="selectOption(28, 'H')">H. I became very keen to attend another concert.</button>
             </div>
-            <div class="explanation-box" id="expl-28"></div>
         </div>
 
         <!-- Q29 -->
-        <div class="question-card" id="q29">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript (Speaker 3)</span>
-                <p>We got seats near the front, even though the musician performing was world famous. I wasn't really into a couple of the pieces she played, but the rest was awesome. And some people sitting nearby were almost as interesting as events on stage. They'd brought written copies of the music and were following those. I didn't understand that. Why not just enjoy the music? Anyway, it was a great experience, but I'm unsure whether I'd rush to book another event.</p>
+        <div class="question-card" id="q29" data-correct="F">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript (Speaker 3)</span>
+                    <p>And <span class="key-evidence">some people sitting nearby were almost as interesting</span> as events on stage.</p>
+                </div>
             </div>
             <div class="question-text">29. Speaker 3</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(29, 'A', 'F', 'Speaker 3 found people nearby &quot;interesting&quot; because they followed the music score.')">A. I wasn’t sure how to behave while the orchestra was playing.</button>
-                <button class="option-btn" onclick="checkAnswer(29, 'B', 'F', 'Speaker 3 found people nearby &quot;interesting&quot; because they followed the music score.')">B. I was shocked by the audience’s reaction at the end.</button>
-                <button class="option-btn" onclick="checkAnswer(29, 'C', 'F', 'Speaker 3 found people nearby &quot;interesting&quot; because they followed the music score.')">C. I was disappointed with the seats we got.</button>
-                <button class="option-btn" onclick="checkAnswer(29, 'D', 'F', 'Speaker 3 found people nearby &quot;interesting&quot; because they followed the music score.')">D. I was thrilled to be close to a famous musician.</button>
-                <button class="option-btn" onclick="checkAnswer(29, 'E', 'F', 'Speaker 3 found people nearby &quot;interesting&quot; because they followed the music score.')">E. I chose the wrong thing to wear.</button>
-                <button class="option-btn" onclick="checkAnswer(29, 'F', 'F', 'Speaker 3 found people nearby &quot;interesting&quot; because they followed the music score.')">F. I was fascinated by certain members of the audience.</button>
-                <button class="option-btn" onclick="checkAnswer(29, 'G', 'F', 'Speaker 3 found people nearby &quot;interesting&quot; because they followed the music score.')">G. I didn’t recognise any of the music.</button>
-                <button class="option-btn" onclick="checkAnswer(29, 'H', 'F', 'Speaker 3 found people nearby &quot;interesting&quot; because they followed the music score.')">H. I became very keen to attend another concert.</button>
+                <button class="option-btn" onclick="selectOption(29, 'A')">A. I wasn’t sure how to behave...</button>
+                <button class="option-btn" onclick="selectOption(29, 'B')">B. I was shocked by the audience’s reaction...</button>
+                <button class="option-btn" onclick="selectOption(29, 'C')">C. I was disappointed with the seats...</button>
+                <button class="option-btn" onclick="selectOption(29, 'D')">D. I was thrilled to be close to a famous musician.</button>
+                <button class="option-btn" onclick="selectOption(29, 'E')">E. I chose the wrong thing to wear.</button>
+                <button class="option-btn" onclick="selectOption(29, 'F')">F. I was fascinated by certain members of the audience.</button>
+                <button class="option-btn" onclick="selectOption(29, 'G')">G. I didn’t recognise any of the music.</button>
+                <button class="option-btn" onclick="selectOption(29, 'H')">H. I became very keen to attend another concert.</button>
             </div>
-            <div class="explanation-box" id="expl-29"></div>
         </div>
 
         <!-- Q30 -->
-        <div class="question-card" id="q30">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript (Speaker 4)</span>
-                <p>I was aware before the concert that there were some things I shouldn't do, like making a noise during the performance, obviously. And actually everyone was super quiet then. But when it was over, they all just stood up, clapping, whistling and shouting. I'd never seen anything like it. Awful. It was an amazing performance, though, even if I wasn't that familiar with some pieces they played. But then, all classical music sounds fantastic to me.</p>
+        <div class="question-card" id="q30" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript (Speaker 4)</span>
+                    <p>clapping, whistling and shouting. <span class="key-evidence">I'd never seen anything like it. Awful.</span></p>
+                </div>
             </div>
             <div class="question-text">30. Speaker 4</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(30, 'A', 'B', 'Speaker 4 was shocked by the &quot;clapping, whistling and shouting&quot;.')">A. I wasn’t sure how to behave while the orchestra was playing.</button>
-                <button class="option-btn" onclick="checkAnswer(30, 'B', 'B', 'Speaker 4 was shocked by the &quot;clapping, whistling and shouting&quot;.')">B. I was shocked by the audience’s reaction at the end.</button>
-                <button class="option-btn" onclick="checkAnswer(30, 'C', 'B', 'Speaker 4 was shocked by the &quot;clapping, whistling and shouting&quot;.')">C. I was disappointed with the seats we got.</button>
-                <button class="option-btn" onclick="checkAnswer(30, 'D', 'B', 'Speaker 4 was shocked by the &quot;clapping, whistling and shouting&quot;.')">D. I was thrilled to be close to a famous musician.</button>
-                <button class="option-btn" onclick="checkAnswer(30, 'E', 'B', 'Speaker 4 was shocked by the &quot;clapping, whistling and shouting&quot;.')">E. I chose the wrong thing to wear.</button>
-                <button class="option-btn" onclick="checkAnswer(30, 'F', 'B', 'Speaker 4 was shocked by the &quot;clapping, whistling and shouting&quot;.')">F. I was fascinated by certain members of the audience.</button>
-                <button class="option-btn" onclick="checkAnswer(30, 'G', 'B', 'Speaker 4 was shocked by the &quot;clapping, whistling and shouting&quot;.')">G. I didn’t recognise any of the music.</button>
-                <button class="option-btn" onclick="checkAnswer(30, 'H', 'B', 'Speaker 4 was shocked by the &quot;clapping, whistling and shouting&quot;.')">H. I became very keen to attend another concert.</button>
+                <button class="option-btn" onclick="selectOption(30, 'A')">A. I wasn’t sure how to behave...</button>
+                <button class="option-btn" onclick="selectOption(30, 'B')">B. I was shocked by the audience’s reaction...</button>
+                <button class="option-btn" onclick="selectOption(30, 'C')">C. I was disappointed with the seats...</button>
+                <button class="option-btn" onclick="selectOption(30, 'D')">D. I was thrilled to be close to a famous musician.</button>
+                <button class="option-btn" onclick="selectOption(30, 'E')">E. I chose the wrong thing to wear.</button>
+                <button class="option-btn" onclick="selectOption(30, 'F')">F. I was fascinated by certain members of the audience.</button>
+                <button class="option-btn" onclick="selectOption(30, 'G')">G. I didn’t recognise any of the music.</button>
+                <button class="option-btn" onclick="selectOption(30, 'H')">H. I became very keen to attend another concert.</button>
             </div>
-            <div class="explanation-box" id="expl-30"></div>
         </div>
 
         <!-- Q31 -->
-        <div class="question-card" id="q31">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript (Speaker 5)</span>
-                <p>Classical concerts always look so formal on TV, and everyone seems to know exactly what to do, so I thought I'd feel nervous. Luckily, I got a few tips before I went, although I forgot to ask how I was supposed to dress. So I just copied what I'd seen on TV and more or less got it right. Our tickets meant we ended up a long way from the stage, though, so we missed out on the atmosphere, really.</p>
+        <div class="question-card" id="q31" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript (Speaker 5)</span>
+                    <p>ended up a long way from the stage, though, so we <span class="key-evidence">missed out on the atmosphere</span></p>
+                </div>
             </div>
             <div class="question-text">31. Speaker 5</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(31, 'A', 'C', 'Speaker 5 ended up &quot;a long way from the stage&quot; and missed the atmosphere.')">A. I wasn’t sure how to behave while the orchestra was playing.</button>
-                <button class="option-btn" onclick="checkAnswer(31, 'B', 'C', 'Speaker 5 ended up &quot;a long way from the stage&quot; and missed the atmosphere.')">B. I was shocked by the audience’s reaction at the end.</button>
-                <button class="option-btn" onclick="checkAnswer(31, 'C', 'C', 'Speaker 5 ended up &quot;a long way from the stage&quot; and missed the atmosphere.')">C. I was disappointed with the seats we got.</button>
-                <button class="option-btn" onclick="checkAnswer(31, 'D', 'C', 'Speaker 5 ended up &quot;a long way from the stage&quot; and missed the atmosphere.')">D. I was thrilled to be close to a famous musician.</button>
-                <button class="option-btn" onclick="checkAnswer(31, 'E', 'C', 'Speaker 5 ended up &quot;a long way from the stage&quot; and missed the atmosphere.')">E. I chose the wrong thing to wear.</button>
-                <button class="option-btn" onclick="checkAnswer(31, 'F', 'C', 'Speaker 5 ended up &quot;a long way from the stage&quot; and missed the atmosphere.')">F. I was fascinated by certain members of the audience.</button>
-                <button class="option-btn" onclick="checkAnswer(31, 'G', 'C', 'Speaker 5 ended up &quot;a long way from the stage&quot; and missed the atmosphere.')">G. I didn’t recognise any of the music.</button>
-                <button class="option-btn" onclick="checkAnswer(31, 'H', 'C', 'Speaker 5 ended up &quot;a long way from the stage&quot; and missed the atmosphere.')">H. I became very keen to attend another concert.</button>
+                <button class="option-btn" onclick="selectOption(31, 'A')">A. I wasn’t sure how to behave...</button>
+                <button class="option-btn" onclick="selectOption(31, 'B')">B. I was shocked by the audience’s reaction...</button>
+                <button class="option-btn" onclick="selectOption(31, 'C')">C. I was disappointed with the seats...</button>
+                <button class="option-btn" onclick="selectOption(31, 'D')">D. I was thrilled to be close to a famous musician.</button>
+                <button class="option-btn" onclick="selectOption(31, 'E')">E. I chose the wrong thing to wear.</button>
+                <button class="option-btn" onclick="selectOption(31, 'F')">F. I was fascinated by certain members of the audience.</button>
+                <button class="option-btn" onclick="selectOption(31, 'G')">G. I didn’t recognise any of the music.</button>
+                <button class="option-btn" onclick="selectOption(31, 'H')">H. I became very keen to attend another concert.</button>
             </div>
-            <div class="explanation-box" id="expl-31"></div>
         </div>
 
         <!-- Q32 -->
-        <div class="question-card" id="q32">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript (Speaker 6)</span>
-                <p>I was convinced I wouldn't enjoy the concert I went to. Classical music's not my thing, really. Even so, I found out a little about the star violinist who was playing and what he'd play. Stuff I'd heard of, at least. Anyway, once I got inside the whole experience, the front row seats, the lights, the orchestra so amazed me that by the time I left, I'd already booked to see something else the following week.</p>
+        <div class="question-card" id="q32" data-correct="H">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript (Speaker 6)</span>
+                    <p>by the time I left, <span class="key-evidence">I'd already booked to see something else the following week.</span></p>
+                </div>
             </div>
             <div class="question-text">32. Speaker 6</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(32, 'A', 'H', 'Speaker 6 booked &quot;to see something else the following week&quot;.')">A. I wasn’t sure how to behave while the orchestra was playing.</button>
-                <button class="option-btn" onclick="checkAnswer(32, 'B', 'H', 'Speaker 6 booked &quot;to see something else the following week&quot;.')">B. I was shocked by the audience’s reaction at the end.</button>
-                <button class="option-btn" onclick="checkAnswer(32, 'C', 'H', 'Speaker 6 booked &quot;to see something else the following week&quot;.')">C. I was disappointed with the seats we got.</button>
-                <button class="option-btn" onclick="checkAnswer(32, 'D', 'H', 'Speaker 6 booked &quot;to see something else the following week&quot;.')">D. I was thrilled to be close to a famous musician.</button>
-                <button class="option-btn" onclick="checkAnswer(32, 'E', 'H', 'Speaker 6 booked &quot;to see something else the following week&quot;.')">E. I chose the wrong thing to wear.</button>
-                <button class="option-btn" onclick="checkAnswer(32, 'F', 'H', 'Speaker 6 booked &quot;to see something else the following week&quot;.')">F. I was fascinated by certain members of the audience.</button>
-                <button class="option-btn" onclick="checkAnswer(32, 'G', 'H', 'Speaker 6 booked &quot;to see something else the following week&quot;.')">G. I didn’t recognise any of the music.</button>
-                <button class="option-btn" onclick="checkAnswer(32, 'H', 'H', 'Speaker 6 booked &quot;to see something else the following week&quot;.')">H. I became very keen to attend another concert.</button>
+                <button class="option-btn" onclick="selectOption(32, 'A')">A. I wasn’t sure how to behave...</button>
+                <button class="option-btn" onclick="selectOption(32, 'B')">B. I was shocked by the audience’s reaction...</button>
+                <button class="option-btn" onclick="selectOption(32, 'C')">C. I was disappointed with the seats...</button>
+                <button class="option-btn" onclick="selectOption(32, 'D')">D. I was thrilled to be close to a famous musician.</button>
+                <button class="option-btn" onclick="selectOption(32, 'E')">E. I chose the wrong thing to wear.</button>
+                <button class="option-btn" onclick="selectOption(32, 'F')">F. I was fascinated by certain members of the audience.</button>
+                <button class="option-btn" onclick="selectOption(32, 'G')">G. I didn’t recognise any of the music.</button>
+                <button class="option-btn" onclick="selectOption(32, 'H')">H. I became very keen to attend another concert.</button>
             </div>
-            <div class="explanation-box" id="expl-32"></div>
         </div>
     </section>
 
-    <!-- ================= EXERCISE 5 ================= -->
+    <!-- EXERCISE 5 -->
     <section class="exercise-section">
         <h2 class="exercise-title">Exercise 5: Interview with Harry Soames</h2>
 
         <!-- Q33 -->
-        <div class="question-card" id="q33">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> I'm with Harry Soames, who recently joined a group boat trip along a river. Harry, tell us about your trip. What were your boats like?</p>
-                <p><span class="speaker-label">Speaker 2:</span> Well, we each had our own small inflatable boat. You pump it full of air to use and you can pack it up and carry it to quiet areas of water away from other people. You can't reach the same speed as with some other boats, but they're great to use. Not many people know about them yet, though.</p>
+        <div class="question-card" id="q33" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>you can <span class="key-evidence">pack it up and carry it</span> to quiet areas</p>
+                </div>
             </div>
             <div class="question-text">33. How does Harry describe the boats that the group travelled in?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(33, 'A', 'C', 'You can &quot;pack it up and carry it&quot;, meaning easy to transport.')">A. They are very popular.</button>
-                <button class="option-btn" onclick="checkAnswer(33, 'B', 'C', 'You can &quot;pack it up and carry it&quot;, meaning easy to transport.')">B. They are fast on the water.</button>
-                <button class="option-btn" onclick="checkAnswer(33, 'C', 'C', 'You can &quot;pack it up and carry it&quot;, meaning easy to transport.')">C. They are easy to transport.</button>
+                <button class="option-btn" onclick="selectOption(33, 'A')">A. They are very popular.</button>
+                <button class="option-btn" onclick="selectOption(33, 'B')">B. They are fast on the water.</button>
+                <button class="option-btn" onclick="selectOption(33, 'C')">C. They are easy to transport.</button>
             </div>
-            <div class="explanation-box" id="expl-33"></div>
+            <div class="explanation-box">Being able to pack and carry a boat means it is easy to transport.</div>
         </div>
 
         <!-- Q34 -->
-        <div class="question-card" id="q34">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> How far along the river were you intending to go?</p>
-                <p><span class="speaker-label">Speaker 2:</span> Well, I was keen to keep going until the river reached the sea, although that was unrealistic, as we only had three days. So we let that set the limit as to how far we could get. And we knew if we reached a place where the water became dangerously fast flowing, we might have to turn back or walk along the bank for a bit.</p>
+        <div class="question-card" id="q34" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>we only had three days. So we <span class="key-evidence">let that set the limit</span> as to how far we could get.</p>
+                </div>
             </div>
             <div class="question-text">34. How far was the group planning to go along the river?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(34, 'A', 'B', 'They let the time (3 days) set the limit.')">A. the entire length of it</button>
-                <button class="option-btn" onclick="checkAnswer(34, 'B', 'B', 'They let the time (3 days) set the limit.')">B. as far as possible in the time available</button>
-                <button class="option-btn" onclick="checkAnswer(34, 'C', 'B', 'They let the time (3 days) set the limit.')">C. to the point where conditions got rougher</button>
+                <button class="option-btn" onclick="selectOption(34, 'A')">A. the entire length of it</button>
+                <button class="option-btn" onclick="selectOption(34, 'B')">B. as far as possible in the time available</button>
+                <button class="option-btn" onclick="selectOption(34, 'C')">C. to the point where conditions got rougher</button>
             </div>
-            <div class="explanation-box" id="expl-34"></div>
+            <div class="explanation-box">They went as far as they could in the time (3 days) they had.</div>
         </div>
 
         <!-- Q35 -->
-        <div class="question-card" id="q35">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> And you had two guides with you?</p>
-                <p><span class="speaker-label">Speaker 2:</span> Yeah, David and Ben, who clearly both loved their job. And even though I didn't live that far away, they had a much greater familiarity with the place. I'd probably done as much on water as they had, though, like windsurfing and sailing and those sports had taught me how to keep clothes and stuff dry in a waterproof bag while you're on water. Very useful for the trip.</p>
+        <div class="question-card" id="q35" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>they had a <span class="key-evidence">much greater familiarity with the place</span>.</p>
+                </div>
             </div>
             <div class="question-text">35. Harry admits that his guides</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(35, 'A', 'B', 'They had &quot;much greater familiarity with the place&quot;.')">A. were far more skilled at packing than he was.</button>
-                <button class="option-btn" onclick="checkAnswer(35, 'B', 'B', 'They had &quot;much greater familiarity with the place&quot;.')">B. knew far more about his area than he did.</button>
-                <button class="option-btn" onclick="checkAnswer(35, 'C', 'B', 'They had &quot;much greater familiarity with the place&quot;.')">C. had far more experience of water sports than he had.</button>
+                <button class="option-btn" onclick="selectOption(35, 'A')">A. were far more skilled at packing than he was.</button>
+                <button class="option-btn" onclick="selectOption(35, 'B')">B. knew far more about his area than he did.</button>
+                <button class="option-btn" onclick="selectOption(35, 'C')">C. had far more experience of water sports than he had.</button>
             </div>
-            <div class="explanation-box" id="expl-35"></div>
+            <div class="explanation-box">"Greater familiarity" means they knew more about the area.</div>
         </div>
 
         <!-- Q36 -->
-        <div class="question-card" id="q36">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> And before you set off, you did some sightseeing?</p>
-                <p><span class="speaker-label">Speaker 2:</span> Yes, our guides took us right to the very top of the river valley where we could look down and see where were heading. We took a few pictures, although it was impossible to capture the beauty of it. But I was also keen to actually follow the river all the way back to where it began, from a lake nearby. So I did that before I joined the group. I'd guessed there'd be no opportunity later on.</p>
+        <div class="question-card" id="q36" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>took us right to the <span class="key-evidence">very top of the river valley</span></p>
+                </div>
             </div>
             <div class="question-text">36. Before they set off, Harry and his group</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(36, 'A', 'A', 'They went to &quot;the very top of the river valley&quot;.')">A. climbed to the highest point above the river.</button>
-                <button class="option-btn" onclick="checkAnswer(36, 'B', 'A', 'They went to &quot;the very top of the river valley&quot;.')">B. went to look for the source of the river.</button>
-                <button class="option-btn" onclick="checkAnswer(36, 'C', 'A', 'They went to &quot;the very top of the river valley&quot;.')">C. took a lot of photos of the river.</button>
+                <button class="option-btn" onclick="selectOption(36, 'A')">A. climbed to the highest point above the river.</button>
+                <button class="option-btn" onclick="selectOption(36, 'B')">B. went to look for the source of the river.</button>
+                <button class="option-btn" onclick="selectOption(36, 'C')">C. took a lot of photos of the river.</button>
             </div>
-            <div class="explanation-box" id="expl-36"></div>
+            <div class="explanation-box">The top of the valley is the highest point above the river.</div>
         </div>
 
         <!-- Q37 -->
-        <div class="question-card" id="q37">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> And once you'd started going along the river, how was it?</p>
-                <p><span class="speaker-label">Speaker 2:</span> Wonderful. So quiet and calm after all the rush of the preparations. And we got to stretches of river that are much easier to reach if you've got a boat, Although, in fact, there were still more walkers around than I'd expected. And I guess I'd imagined being able to see for miles, although the views were occasionally blocked by overhanging trees. But the trip was definitely still worth it.</p>
+        <div class="question-card" id="q37" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>there were still <span class="key-evidence">more walkers around than I'd expected</span>.</p>
+                </div>
             </div>
             <div class="question-text">37. Once on the river, Harry was surprised by</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(37, 'A', 'C', 'He says &quot;more walkers around than I\'d expected&quot;.')">A. how remote some parts of it were.</button>
-                <button class="option-btn" onclick="checkAnswer(37, 'B', 'C', 'He says &quot;more walkers around than I\'d expected&quot;.')">B. how beautiful the surrounding landscape was.</button>
-                <button class="option-btn" onclick="checkAnswer(37, 'C', 'C', 'He says &quot;more walkers around than I\'d expected&quot;.')">C. how many people they came across along the way.</button>
+                <button class="option-btn" onclick="selectOption(37, 'A')">A. how remote some parts of it were.</button>
+                <button class="option-btn" onclick="selectOption(37, 'B')">B. how beautiful the surrounding landscape was.</button>
+                <button class="option-btn" onclick="selectOption(37, 'C')">C. how many people they came across along the way.</button>
             </div>
-            <div class="explanation-box" id="expl-37"></div>
+            <div class="explanation-box">"More walkers" refers to the number of people he encountered.</div>
         </div>
 
         <!-- Q38 -->
-        <div class="question-card" id="q38">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> But eventually the river became rocky and unsafe for your boats, so you got out and walked, is that right?</p>
-                <p><span class="speaker-label">Speaker 2:</span> Yes, through the nearby town. That was weird. It was so noisy and very different from what we'd left. I thought we might miss out on some of the animals and birds too, although our guides assured us that wasn't the case. Even so, I was keen to get back and carry on learning as much as I could about the river.</p>
+        <div class="question-card" id="q38" data-correct="A">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>That was weird. It was <span class="key-evidence">so noisy and very different</span> from what we'd left.</p>
+                </div>
             </div>
             <div class="question-text">38. When the group was forced to leave the river and walk through a town, Harry</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(38, 'A', 'A', 'He calls it &quot;weird&quot;, &quot;noisy&quot;, and &quot;different&quot;, implying difficulty with the contrast.')">A. found the contrast with the river difficult to handle.</button>
-                <button class="option-btn" onclick="checkAnswer(38, 'B', 'A', 'He calls it &quot;weird&quot;, &quot;noisy&quot;, and &quot;different&quot;, implying difficulty with the contrast.')">B. realised he already understood the river much better.</button>
-                <button class="option-btn" onclick="checkAnswer(38, 'C', 'A', 'He calls it &quot;weird&quot;, &quot;noisy&quot;, and &quot;different&quot;, implying difficulty with the contrast.')">C. was disappointed he wouldn’t see the river’s wildlife.</button>
+                <button class="option-btn" onclick="selectOption(38, 'A')">A. found the contrast with the river difficult to handle.</button>
+                <button class="option-btn" onclick="selectOption(38, 'B')">B. realised he already understood the river much better.</button>
+                <button class="option-btn" onclick="selectOption(38, 'C')">C. was disappointed he wouldn’t see the river’s wildlife.</button>
             </div>
-            <div class="explanation-box" id="expl-38"></div>
+            <div class="explanation-box">He found the noise and difference "weird," implying difficulty with the contrast.</div>
         </div>
 
         <!-- Q39 -->
-        <div class="question-card" id="q39">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> And so what did you particularly like on your trip?</p>
-                <p><span class="speaker-label">Speaker 2:</span> Well, I can't say our tents were great. I felt tired during the day from lack of sleep. I was so relieved though that the whole group got on so well together. That doesn't always happen. And it didn't rain, although it wasn't that warm. But then travelling in the heat would have been difficult.</p>
+        <div class="question-card" id="q39" data-correct="C">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>I was so relieved though that the <span class="key-evidence">whole group got on so well together</span>.</p>
+                </div>
             </div>
             <div class="question-text">39. What was Harry particularly pleased about on the trip?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(39, 'A', 'C', 'He was relieved &quot;the whole group got on so well&quot;.')">A. the comfort of his accommodation</button>
-                <button class="option-btn" onclick="checkAnswer(39, 'B', 'C', 'He was relieved &quot;the whole group got on so well&quot;.')">B. the nice weather they had</button>
-                <button class="option-btn" onclick="checkAnswer(39, 'C', 'C', 'He was relieved &quot;the whole group got on so well&quot;.')">C. the people he was with</button>
+                <button class="option-btn" onclick="selectOption(39, 'A')">A. the comfort of his accommodation</button>
+                <button class="option-btn" onclick="selectOption(39, 'B')">B. the nice weather they had</button>
+                <button class="option-btn" onclick="selectOption(39, 'C')">C. the people he was with</button>
             </div>
-            <div class="explanation-box" id="expl-39"></div>
+            <div class="explanation-box">He was pleased the "group got on well" (the people he was with).</div>
         </div>
 
         <!-- Q40 -->
-        <div class="question-card" id="q40">
-            <div class="transcript-container">
-                <span class="transcript-label">Full Transcript</span>
-                <p><span class="speaker-label">Speaker 1:</span> And did you remember everything you needed?</p>
-                <p><span class="speaker-label">Speaker 2:</span> Well, I realised I'd left behind a fascinating novel. I was halfway through which would have really helped me relax in the evenings. And I was glad of my thick sweater and socks then too. The thing was though, were only given freeze dried meals which we could carry easily and they weren't that tasty. But we did have delicious pizzas together on the last evening.</p>
+        <div class="question-card" id="q40" data-correct="B">
+            <div class="transcript-wrapper">
+                <div class="transcript-container">
+                    <span class="transcript-label">Transcript</span>
+                    <p>Well, I realised I'd left behind a <span class="key-evidence">fascinating novel</span>.</p>
+                </div>
             </div>
             <div class="question-text">40. What did Harry regret forgetting to take with him?</div>
             <div class="options-grid">
-                <button class="option-btn" onclick="checkAnswer(40, 'A', 'B', 'He left behind a &quot;fascinating novel&quot; (reading material).')">A. something nice to eat</button>
-                <button class="option-btn" onclick="checkAnswer(40, 'B', 'B', 'He left behind a &quot;fascinating novel&quot; (reading material).')">B. good reading material</button>
-                <button class="option-btn" onclick="checkAnswer(40, 'C', 'B', 'He left behind a &quot;fascinating novel&quot; (reading material).')">C. warm clothes</button>
+                <button class="option-btn" onclick="selectOption(40, 'A')">A. something nice to eat</button>
+                <button class="option-btn" onclick="selectOption(40, 'B')">B. good reading material</button>
+                <button class="option-btn" onclick="selectOption(40, 'C')">C. warm clothes</button>
             </div>
-            <div class="explanation-box" id="expl-40"></div>
+            <div class="explanation-box">A novel is "reading material".</div>
         </div>
     </section>
 
 </div>
 
+<div class="submit-bar">
+    <button class="check-btn" onclick="checkAllAnswers()">Check All Answers</button>
+</div>
+
 <script>
-    function checkAnswer(questionId, selectedOption, correctOption, explanationText) {
-        const card = document.getElementById('q' + questionId);
+    // Store user selections: { 1: 'A', 2: 'B', ... }
+    const userAnswers = {};
+
+    function selectOption(qId, choice) {
+        // 1. Save the selection
+        userAnswers[qId] = choice;
+
+        // 2. Update UI: visually select this button
+        const card = document.getElementById('q' + qId);
         const buttons = card.querySelectorAll('.option-btn');
-        const explanationBox = document.getElementById('expl-' + questionId);
-
+        
         buttons.forEach(btn => {
-            btn.disabled = true;
-            // Extract button identity (A, B, C, etc.) from onclick string
-            const btnIdentity = btn.getAttribute('onclick').split("'")[1];
+            // Clean previous selection
+            btn.classList.remove('selected');
             
-            btn.classList.remove('correct', 'wrong');
-
-            if(btnIdentity === correctOption) {
-                btn.classList.add('correct'); 
-            }
-
-            if(btnIdentity === selectedOption && selectedOption !== correctOption) {
-                btn.classList.add('wrong'); 
+            // Check if this is the clicked button
+            const btnChoice = btn.getAttribute('onclick').split("'")[1];
+            if(btnChoice === choice) {
+                btn.classList.add('selected');
             }
         });
+    }
 
-        explanationBox.style.display = 'block';
-        
-        let feedbackTitle = '';
+    function checkAllAnswers() {
+        let score = 0;
+        const totalQuestions = 40;
 
-        if(selectedOption === correctOption) {
-            feedbackTitle = '<span style="color:#155724">Correct!</span>';
-            explanationBox.style.border = "1px solid #c3e6cb";
-            explanationBox.style.backgroundColor = "#d4edda";
-        } else {
-            feedbackTitle = '<span style="color:#721c24">Incorrect.</span>';
-            explanationBox.style.border = "1px solid #f5c6cb";
-            explanationBox.style.backgroundColor = "#f8d7da";
+        // Loop through all questions
+        for(let i = 1; i <= totalQuestions; i++) {
+            const card = document.getElementById('q' + i);
+            const correctAns = card.getAttribute('data-correct');
+            const userChoice = userAnswers[i];
+            const buttons = card.querySelectorAll('.option-btn');
+            const explanation = card.querySelector('.explanation-box');
+            const transcriptWrapper = card.querySelector('.transcript-wrapper');
+
+            // 1. Lock buttons (disable interaction)
+            buttons.forEach(btn => btn.disabled = true);
+
+            // 2. Apply Right/Wrong classes
+            buttons.forEach(btn => {
+                const btnChoice = btn.getAttribute('onclick').split("'")[1];
+                
+                // Always mark the correct answer Green
+                if(btnChoice === correctAns) {
+                    btn.classList.add('correct');
+                }
+
+                // If user chose this AND it's wrong -> Mark Red
+                if(userChoice === btnChoice && userChoice !== correctAns) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            // 3. Reveal Transcript & Highlight Evidence
+            transcriptWrapper.style.display = 'block';
+            
+            // 4. Reveal Explanation
+            explanation.style.display = 'block';
+
+            // Calculate Score
+            if(userChoice === correctAns) {
+                score++;
+            }
         }
 
-        explanationBox.innerHTML = `
-            <strong style="display:block; margin-bottom:5px;">${feedbackTitle}</strong>
-            <p style="margin:0;">${explanationText}</p>
-        `;
+        // Add 'reviewed' class to body to trigger CSS highlights
+        document.body.classList.add('reviewed');
+
+        // Hide Check Button
+        document.querySelector('.submit-bar').style.display = 'none';
+
+        // Show Score at Top
+        const scoreDisplay = document.getElementById('score-display');
+        scoreDisplay.style.display = 'block';
+        scoreDisplay.innerHTML = `You scored ${score} out of ${totalQuestions}`;
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>
 
